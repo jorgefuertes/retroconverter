@@ -20,11 +20,6 @@ func VersionShort() string {
 	return version
 }
 
-// BinVersion - Bin version for AT
-func BinVersion() string {
-	return fmt.Sprintf("Bin version (%s %s): %s", user, number, version)
-}
-
 // CompileTime - Compile time string
 func CompileTime() string {
 	return fmt.Sprintf("compile time:%s", time)
