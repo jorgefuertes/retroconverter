@@ -1,4 +1,4 @@
-# retroconverter
+# RetroConverter
 
 Wav to TZX conversor.
 
