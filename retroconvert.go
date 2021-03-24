@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"git.martianoids.com/queru/retroconverter/internal/audio"
 	"git.martianoids.com/queru/retroconverter/internal/banner"
 	"git.martianoids.com/queru/retroconverter/internal/build"
 	"git.martianoids.com/queru/retroconverter/internal/cfg"
+	"git.martianoids.com/queru/retroconverter/internal/qconvert"
 	"github.com/alecthomas/kong"
 )
 
@@ -44,10 +44,35 @@ func main() {
 	// banner
 	fmt.Println(banner.Title)
 
-	w := new(audio.Wav)
+	w := new(qconvert.Wav)
 	err := w.Load(cfg.Main.InFile)
 	check(err)
 
-	// normalize volume level
-	w.Normalize()
+	w.Stats()
+
+	// out, err := os.Create("work/out.wav")
+	// check(err)
+	// e := wav.NewEncoder(out,
+	// 	int(w.Decoder.SampleRate),
+	// 	int(w.Decoder.BitDepth),
+	// 	int(w.Decoder.NumChans),
+	// 	int(w.Decoder.WavAudioFormat),
+	// )
+
+	// for {
+	// 	chunk, err := w.Decoder.NextChunk()
+	// 	if err != nil {
+	// 		break
+	// 	}
+	// 	fmt.Printf("CHUNK %v: ", chunk.Pos)
+	// 	count := 0
+	// 	for {
+	// 		_, err := chunk.ReadByte()
+	// 		if err != nil {
+	// 			fmt.Printf("%d bytes written\n", count)
+	// 			break
+	// 		}
+	// 		count++
+	// 	}
+	// }
 }
