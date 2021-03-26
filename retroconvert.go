@@ -45,34 +45,21 @@ func main() {
 	fmt.Println(banner.Title)
 
 	w := new(qconvert.Wav)
+	w.Filters.PHi = cfg.Main.PulseHi
+	w.Filters.PLo = cfg.Main.PulseLo
+	w.Filters.SHi = cfg.Main.SilenceHi
+	w.Filters.SLo = cfg.Main.SilenceLo
 	err := w.Load(cfg.Main.InFile)
 	check(err)
 
-	w.Stats()
+	if cfg.Main.Normalize {
+		w.CalcLevels()
+		fmt.Printf("Pulse HI: %+04d LO: %+04d Fix Factor: %.3f\n", w.Highest, w.Lowest, w.Factor)
+		w.FixLevels()
+		fmt.Printf("Pulse HI: %+04d LO: %+04d (Normalized)\n", w.Highest, w.Lowest)
+	}
 
-	// out, err := os.Create("work/out.wav")
-	// check(err)
-	// e := wav.NewEncoder(out,
-	// 	int(w.Decoder.SampleRate),
-	// 	int(w.Decoder.BitDepth),
-	// 	int(w.Decoder.NumChans),
-	// 	int(w.Decoder.WavAudioFormat),
-	// )
-
-	// for {
-	// 	chunk, err := w.Decoder.NextChunk()
-	// 	if err != nil {
-	// 		break
-	// 	}
-	// 	fmt.Printf("CHUNK %v: ", chunk.Pos)
-	// 	count := 0
-	// 	for {
-	// 		_, err := chunk.ReadByte()
-	// 		if err != nil {
-	// 			fmt.Printf("%d bytes written\n", count)
-	// 			break
-	// 		}
-	// 		count++
-	// 	}
-	// }
+	w.CalcPulse()
+	w.BlockStats()
+	w.SaveTzx(cfg.Main.OutFile)
 }
