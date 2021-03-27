@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 
-git status | grep "working tree clean" &> /dev/null
+git status | egrep "working tree clean|el árbol de trabajo está limpio" &> /dev/null
 if [[ $? -ne 0 ]]
 then
 	echo "Commit local changes and create a new tag first"
