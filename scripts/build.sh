@@ -22,7 +22,7 @@ do
 	        echo "Building ${i} ${j}"
 	        GOOS=$i GOARCH=$j go build -ldflags "${FLAGS}" \
 				-o "bin/${EXE_NAME}_${VER}-${i}_${j}" \
-				server.go
+				retroconvert.go
 	        if [[ $? -ne 0 ]]
 	        then
 	            echo "Compilation error!"
