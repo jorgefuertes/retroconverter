@@ -5,15 +5,15 @@ import "time"
 const NEGATIVE int8 = 0
 const POSITIVE int8 = 1
 const HUSH int8 = 2
-const pulseNames = "NEGATIVE,POSITIVE,HUSH"
+const UINT24_MAX uint = 16777216
 
 type Pulse struct {
 	Positive bool
-	Duration int
+	Duration uint
 }
 
 type Block struct {
-	Pause  int // Pause after milliseconds
+	Pause  uint // Pause after milliseconds
 	Pulses []Pulse
 }
 

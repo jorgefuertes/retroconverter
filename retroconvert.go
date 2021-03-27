@@ -59,7 +59,10 @@ func main() {
 		fmt.Printf("Pulse HI: %+04d LO: %+04d (Normalized)\n", w.Highest, w.Lowest)
 	}
 
-	w.CalcPulse()
+	if err := w.CalcPulse(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	w.BlockStats()
 	w.SaveTzx(cfg.Main.OutFile)
 }

@@ -1,15 +1,9 @@
 package qconvert
 
 import (
+	"errors"
 	"fmt"
-	"strings"
 )
-
-// pulseName - Given a signal 0,1,2 returns its name NEGATIVE,POSITIVE,HUSH
-// Util for logging purposes
-func pulseName(signal int8) string {
-	return strings.Split(pulseNames, ",")[signal]
-}
 
 // pulseType - Given a sample level returns the signal 0,1 or 2
 func (w *Wav) pulseType(b int) int8 {
@@ -46,9 +40,10 @@ func (w *Wav) BlockStats() {
 }
 
 // CalcPulse - Crunch it to pulses
-func (w *Wav) CalcPulse() {
+func (w *Wav) CalcPulse() error {
 	var signal int8 = HUSH // default to hush
-	var count int
+	var count uint
+	var pulseCount uint
 	block := Block{}
 	for _, b := range w.Data {
 		if w.pulseType(b) == signal {
@@ -61,7 +56,7 @@ func (w *Wav) CalcPulse() {
 		switch signal {
 		case HUSH:
 			// Was HUSH, close block with pause if significant and block in course
-			if count >= 5 && len(w.Blocks) > 0 {
+			if count >= 10 && len(w.Blocks) > 0 {
 				block.Pause = count
 				// Closing block
 				w.Blocks = append(w.Blocks, block)
@@ -69,6 +64,9 @@ func (w *Wav) CalcPulse() {
 			} else {
 				// Begin with new signal discarding short hush
 				if len(block.Pulses) > 0 {
+					if pulseCount > UINT24_MAX {
+						return errors.New("24bits pulse limit reached")
+					}
 					block.Pulses[len(block.Pulses)-1].Duration += count
 				}
 				// Just discard
@@ -90,4 +88,6 @@ func (w *Wav) CalcPulse() {
 	if len(block.Pulses) > 0 || block.Pause > 0 {
 		w.Blocks = append(w.Blocks, block)
 	}
+
+	return nil
 }
