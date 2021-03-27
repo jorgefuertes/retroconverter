@@ -24,12 +24,12 @@ func (w *Wav) SaveTzx(filename string) error {
 
 	// t-states calc
 	tstates := []byte{0, 0}
-	binary.LittleEndian.PutUint16(
-		tstates, uint16(0.5+(3500000.0/float64(w.Format.SampleRate))))
+	binary.LittleEndian.PutUint16(tstates, w.TStates)
 
 	// blocks (all ID 15)
 	for _, block := range w.Blocks {
-		f.Write(tstates) // [2b] T-States per bit
+		f.Write([]byte{15}) // Block ID
+		f.Write(tstates)    // [2b] T-States per bit
 		// pause
 		pauseMs := []byte{0, 0}
 		binary.LittleEndian.PutUint16(pauseMs, uint16(block.Pause))

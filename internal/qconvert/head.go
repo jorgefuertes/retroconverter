@@ -31,6 +31,7 @@ type Wav struct {
 		SHi int
 		SLo int
 	}
+	TStates uint16
 	Highest int
 	Lowest  int
 	Factor  float64
