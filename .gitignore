@@ -19,3 +19,6 @@
 /work
 *.wav
 *.tzx
+/.build
+/bin
+/dist
