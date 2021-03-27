@@ -1,6 +1,6 @@
 EXE_NAME="retroconvert"
 
-git status | grep "On branch master" &> /dev/null
+git status | egrep "On branch master|En la rama master" &> /dev/null
 if [[ $? -ne 0 ]]
 then
 	echo "Refusing to build from other branch than master"
