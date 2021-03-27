@@ -1,4 +1,4 @@
-EXE_NAME="retroserver"
+EXE_NAME="retroconvert"
 
 git status | grep "On branch master" &> /dev/null
 if [[ $? -ne 0 ]]
@@ -45,8 +45,8 @@ BUILD=$(($BUILD + 1))
 echo $BUILD > .build
 
 FLAGS="-s -w \
-	-X git.martianoids.com/queru/retroserver/internal/build.version=${VER} \
-	-X git.martianoids.com/queru/retroserver/internal/build.user=${WHO} \
-	-X git.martianoids.com/queru/retroserver/internal/build.time=${TIME} \
-	-X git.martianoids.com/queru/retroserver/internal/build.number=${BUILD} \
+	-X git.martianoids.com/queru/retroconvert/internal/build.version=${VER} \
+	-X git.martianoids.com/queru/retroconvert/internal/build.user=${WHO} \
+	-X git.martianoids.com/queru/retroconvert/internal/build.time=${TIME} \
+	-X git.martianoids.com/queru/retroconvert/internal/build.number=${BUILD} \
 "
