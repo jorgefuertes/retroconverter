@@ -42,13 +42,13 @@ func (w *Wav) Load(inFileName string) error {
 
 	switch w.Format.SampleRate {
 	case 22050:
-		w.TStates = 158
+		w.TStates = TS_22050
 	case 44100:
-		w.TStates = 58
+		w.TStates = TS_44100
 	default:
 		return fmt.Errorf("invalid sampling freq: %d (use 22050 or 44100)", w.Format.SampleRate)
 	}
-	fmt.Printf("T-states/sample: %d", w.TStates)
+	fmt.Printf("T-states/sample: %d ", w.TStates)
 
 	w.cast2Signed()
 

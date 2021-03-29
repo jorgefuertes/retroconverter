@@ -1,18 +1,22 @@
 package qconvert
 
-import "time"
+import (
+	"time"
+)
 
 const NEGATIVE int8 = 0
 const POSITIVE int8 = 1
 const HUSH int8 = 2
 const UINT24_MAX uint = 16777216
+const TS_22050 uint16 = 158
+const TS_44100 uint16 = 59
 
 type Pulse struct {
 	Positive bool
 	Duration uint
 }
 
-type Block struct {
+type SampleBlock struct {
 	Pause  uint // Pause after milliseconds
 	Pulses []Pulse
 }
@@ -36,5 +40,5 @@ type Wav struct {
 	Lowest  int
 	Factor  float64
 	Data    []int
-	Blocks  []Block
+	Blocks  []SampleBlock
 }

@@ -44,7 +44,7 @@ func (w *Wav) CalcPulse() error {
 	var signal int8 = HUSH // default to hush
 	var count uint
 	var pulseCount uint
-	block := Block{}
+	block := SampleBlock{}
 	for _, b := range w.Data {
 		if w.pulseType(b) == signal {
 			// No change, just increase pulse length
@@ -60,7 +60,7 @@ func (w *Wav) CalcPulse() error {
 				block.Pause = count
 				// Closing block
 				w.Blocks = append(w.Blocks, block)
-				block = Block{}
+				block = SampleBlock{}
 			} else {
 				// Begin with new signal discarding short hush
 				if len(block.Pulses) > 0 {
