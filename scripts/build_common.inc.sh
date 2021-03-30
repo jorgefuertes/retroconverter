@@ -45,8 +45,8 @@ BUILD=$(($BUILD + 1))
 echo $BUILD > .build
 
 FLAGS="-s -w \
-	-X git.martianoids.com/queru/retroconvert/internal/build.version=${VER} \
-	-X git.martianoids.com/queru/retroconvert/internal/build.user=${WHO} \
-	-X git.martianoids.com/queru/retroconvert/internal/build.time=${TIME} \
-	-X git.martianoids.com/queru/retroconvert/internal/build.number=${BUILD} \
+	-X git.martianoids.com/queru/retroconverter/internal/build.version=${VER} \
+	-X git.martianoids.com/queru/retroconverter/internal/build.user=${WHO} \
+	-X git.martianoids.com/queru/retroconverter/internal/build.time=${TIME} \
+	-X git.martianoids.com/queru/retroconverter/internal/build.number=${BUILD} \
 "
