@@ -42,27 +42,20 @@ func main() {
 	}
 
 	// banner
-	fmt.Println(banner.Title)
+	if cfg.Main.Verbose {
+		fmt.Println(banner.Title)
+	}
 
 	w := new(qconvert.Wav)
-	w.Filters.PHi = cfg.Main.PulseHi
-	w.Filters.PLo = cfg.Main.PulseLo
-	w.Filters.SHi = cfg.Main.SilenceHi
-	w.Filters.SLo = cfg.Main.SilenceLo
 	err := w.Load(cfg.Main.InFile)
 	check(err)
 
-	if cfg.Main.Normalize {
-		w.CalcLevels()
-		fmt.Printf("Pulse HI: %+04d LO: %+04d Fix Factor: %.3f\n", w.Highest, w.Lowest, w.Factor)
-		w.FixLevels()
-		fmt.Printf("Pulse HI: %+04d LO: %+04d (Normalized)\n", w.Highest, w.Lowest)
+	w.ToPulses()
+	if cfg.Main.Verbose {
+		w.BlockStats()
 	}
-
-	if err := w.CalcPulse(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	w.BlockStats()
 	w.SaveTzx(cfg.Main.OutFile)
+	if cfg.Main.Verbose {
+		fmt.Println("> EOF")
+	}
 }

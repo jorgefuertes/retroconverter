@@ -4,6 +4,9 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+
+	"git.martianoids.com/queru/retroconverter/internal/cfg"
+	"github.com/dustin/go-humanize"
 )
 
 func (tzx *Tzx) create() error {
@@ -30,58 +33,33 @@ func (w *Wav) SaveTzx(filename string) error {
 	}
 	defer tzx.F.Close()
 
-	fmt.Println("--- TZX WRITE ---")
+	if cfg.Main.Verbose {
+		fmt.Println("> TZX:")
+	}
 	// header
-	fmt.Printf("[%03d] ZXTape!\n", tzx.Written)
+	if cfg.Main.Verbose {
+		fmt.Printf("  [%03d] ZXTape!\n", tzx.Written)
+	}
 	tzx.write([]byte("ZXTape!")) // [7b] signature
-	fmt.Printf("[%03d] 0x1A\n", tzx.Written)
+	if cfg.Main.Verbose {
+		fmt.Printf("  [%03d] 0x1A\n", tzx.Written)
+	}
 	tzx.write([]byte{0x1A}) // [1b] 1A/26 string end
-	fmt.Printf("[%03d] 1,20\n", tzx.Written)
+	if cfg.Main.Verbose {
+		fmt.Printf("  [%03d] 1,20\n", tzx.Written)
+	}
 	tzx.write([]byte{1, 20}) // [2b] 1,20 Major/minor revision number
 
 	// tzx.write([]byte{30})
+	// tzx.write([]byte{byte(len(tzx.Filename))})
 	// tzx.write([]byte(tzx.Filename))
-	// tzx.write([]byte{0x1A}) // [1b] 1A/26 string end
 
 	// blocks (all ID 15)
 	for _, block := range w.Blocks {
-		// block ID
-		fmt.Printf("[%03d] BlockID: 15\n", tzx.Written)
-		tzx.write([]byte{0x15})
-
-		// [2b] T-States per bit
-		tstates := []byte{0, 0}
-		binary.LittleEndian.PutUint16(tstates, w.TStates)
-		fmt.Printf("[%03d] TStates/Sample: %d LSB: %d MSB: %d\n",
-			tzx.Written, w.TStates, tstates[0], tstates[1])
-		tzx.write(tstates)
-
-		// [2b]Pause after this block in ms
-		pause := []byte{0, 0}
-		binary.LittleEndian.PutUint16(pause, uint16(block.Pause))
-		fmt.Printf("[%03d] Block pause: %d LSB: %d MSB: %d\n",
-			tzx.Written, block.Pause, pause[0], pause[1])
-		tzx.write(pause)
-
-		// [1b] Used bits in the last byte
-		var totalPulses uint
-		for _, pulse := range block.Pulses {
-			totalPulses += pulse.Duration
-		}
-		fmt.Printf("[%03d] Used bits in the last byte: %d\n", tzx.Written, (8 - (totalPulses % 8)))
-		tzx.write([]byte{byte(8 - (totalPulses % 8))})
-
-		// length 24bits LSB
-		totalData := (totalPulses / 8) + (totalPulses % 8)
-		u := make([]byte, 4)
-		binary.LittleEndian.PutUint32(u, uint32(totalData))
-		fmt.Printf("[%03d] Length: %d (%d|%X) LSB:%v %x%x%x\n", tzx.Written,
-			totalData, uint32(totalData), uint32(totalData), u[0:3], u[0], u[1], u[2])
-		tzx.write(u[0:3]) // [3b] Data len
-
-		// write pulses in byte blocks, LSB
-		var currByte byte
+		// create the bitstream at first
+		var bitstream []byte
 		var pos uint
+		var currByte byte
 		for _, pulse := range block.Pulses {
 			for i := uint(1); i <= pulse.Duration; i++ {
 				pos++
@@ -89,17 +67,71 @@ func (w *Wav) SaveTzx(filename string) error {
 					currByte |= 1 << (8 - pos)
 				}
 				if pos == 8 {
-					tzx.write([]byte{currByte})
+					bitstream = append(bitstream, currByte)
 					currByte = 0
 					pos = 0
 				}
 			}
 		}
-		if totalPulses%8 != 0 {
-			tzx.write([]byte{currByte})
+		if pos > 0 {
+			if cfg.Main.Verbose {
+				fmt.Printf("  [INF] LAST BYTE: %b USED: %d\n", currByte, pos)
+			}
+			bitstream = append(bitstream, currByte)
 		}
+
+		if cfg.Main.Verbose {
+			fmt.Printf("  [INF] SAMPLES: %s BITSTREAM: %s x8: %s\n",
+				humanize.Comma(int64(block.SampleCount)),
+				humanize.Comma(int64(len(bitstream))),
+				humanize.Comma(int64(len(bitstream)*8)),
+			)
+		}
+
+		// block ID
+		tzx.write([]byte{0x15})
+		if cfg.Main.Verbose {
+			fmt.Printf("  [%03d] BlockID: 15\n", tzx.Written)
+		}
+
+		// [2b] T-States per bit
+		tstates := []byte{0, 0}
+		binary.LittleEndian.PutUint16(tstates, w.TStates)
+		if cfg.Main.Verbose {
+			fmt.Printf("  [%03d] TStates/Sample: %d LSB: %v\n", tzx.Written, w.TStates, tstates)
+		}
+		tzx.write(tstates)
+
+		// [2b]Pause after this block in ms
+		pause := []byte{0, 0}
+		binary.LittleEndian.PutUint16(pause, uint16(block.Pause))
+		if cfg.Main.Verbose {
+			fmt.Printf("  [%03d] Block pause: %d LSB: %d MSB: %d\n",
+				tzx.Written, block.Pause, pause[0], pause[1])
+		}
+		tzx.write(pause)
+
+		// [1b] Used bits in the last byte
+		if cfg.Main.Verbose {
+			fmt.Printf("  [%03d] Used bits in the last byte: %d\n", tzx.Written, pos)
+		}
+		tzx.write([]byte{byte(pos)})
+
+		// length 24bits LSB
+		u := make([]byte, 4)
+		binary.LittleEndian.PutUint32(u, uint32(len(bitstream)))
+		if cfg.Main.Verbose {
+			fmt.Printf("  [%03d] datalen: %d (0x%X) LSB:%v (0x%x%x%x)\n", tzx.Written,
+				len(bitstream), len(bitstream), u[0:3], u[0], u[1], u[2])
+		}
+		tzx.write(u[0:3]) // [3b] Data len
+
+		// bitstream data
+		tzx.write(bitstream)
 	}
-	fmt.Printf("TZX data %d bytes written to %s\n", tzx.Written, tzx.Filename)
+	if cfg.Main.Verbose {
+		fmt.Printf("  [INF] %s written\n", humanize.Bytes(uint64(tzx.Written)))
+	}
 
 	return nil
 }
