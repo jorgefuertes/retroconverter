@@ -7,6 +7,7 @@ type MainConfig struct {
 	Verbose   bool   `flag optional name:"verbose" short:"b" help:"Verbosity (off)." type:"flag" default:"false"`
 	InFile    string `arg optional name:"in" help:"Input .wav file." type:"path"`
 	OutFile   string `arg optional name:"out" help:"Output .tzx file. Defaults to out.tzx." type:"path"`
+	Title     string `arg optional name:"title" help:"Archite title. Defaults to filename."`
 }
 
 // Main - Main configuration

@@ -4,7 +4,9 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"git.martianoids.com/queru/retroconverter/internal/build"
 	"git.martianoids.com/queru/retroconverter/internal/cfg"
 	"github.com/dustin/go-humanize"
 )
@@ -38,21 +40,39 @@ func (w *Wav) SaveTzx(filename string) error {
 	}
 	// header
 	if cfg.Main.Verbose {
-		fmt.Printf("  [%03d] ZXTape!\n", tzx.Written)
+		fmt.Printf("  [%03d] Header\n", tzx.Written)
 	}
 	tzx.write([]byte("ZXTape!")) // [7b] signature
-	if cfg.Main.Verbose {
-		fmt.Printf("  [%03d] 0x1A\n", tzx.Written)
-	}
-	tzx.write([]byte{0x1A}) // [1b] 1A/26 string end
-	if cfg.Main.Verbose {
-		fmt.Printf("  [%03d] 1,20\n", tzx.Written)
-	}
-	tzx.write([]byte{1, 20}) // [2b] 1,20 Major/minor revision number
+	tzx.write([]byte{0x1A})      // [1b] 1A/26 string end
+	tzx.write([]byte{1, 20})     // [2b] 1,20 Major/minor revision number
 
-	// tzx.write([]byte{30})
-	// tzx.write([]byte{byte(len(tzx.Filename))})
-	// tzx.write([]byte(tzx.Filename))
+	// ID 30 - Text Description
+	if cfg.Main.Verbose {
+		fmt.Printf("  [%03d] Block ID 0x30\n", tzx.Written)
+	}
+	signature := "Rip by RetroConvert " + build.VersionShort()
+	tzx.write([]byte{0x30})
+	tzx.write([]byte{byte(len(signature))})
+	tzx.write([]byte(signature))
+
+	// ID 32 - Archive info
+	if cfg.Main.Verbose {
+		fmt.Printf("  [%03d] Block ID 0x32\n", tzx.Written)
+	}
+	title := cfg.Main.Title
+	if title == "" {
+		title = filepath.Base(cfg.Main.InFile)
+	}
+	textBlock := []byte{0x32, 0, 0}
+	textBlock = append(textBlock, 1)
+	textBlock = append(textBlock, 0)
+	textBlock = append(textBlock, byte(len(title)))
+	for _, s := range title {
+		textBlock = append(textBlock, byte(s))
+	}
+	textLen := []byte{0, 0}
+	binary.LittleEndian.PutUint16(textLen, uint16(len(textBlock)-2))
+	tzx.write(textBlock)
 
 	// blocks (all ID 15)
 	for _, block := range w.Blocks {
@@ -74,24 +94,20 @@ func (w *Wav) SaveTzx(filename string) error {
 			}
 		}
 		if pos > 0 {
-			if cfg.Main.Verbose {
-				fmt.Printf("  [INF] LAST BYTE: %b USED: %d\n", currByte, pos)
-			}
 			bitstream = append(bitstream, currByte)
 		}
 
+		// block ID
+		tzx.write([]byte{0x15})
+		if cfg.Main.Verbose {
+			fmt.Printf("  [%03d] Block ID: 0x15\n", tzx.Written)
+		}
 		if cfg.Main.Verbose {
 			fmt.Printf("  [INF] SAMPLES: %s BITSTREAM: %s x8: %s\n",
 				humanize.Comma(int64(block.SampleCount)),
 				humanize.Comma(int64(len(bitstream))),
 				humanize.Comma(int64(len(bitstream)*8)),
 			)
-		}
-
-		// block ID
-		tzx.write([]byte{0x15})
-		if cfg.Main.Verbose {
-			fmt.Printf("  [%03d] BlockID: 15\n", tzx.Written)
 		}
 
 		// [2b] T-States per bit
@@ -129,6 +145,13 @@ func (w *Wav) SaveTzx(filename string) error {
 		// bitstream data
 		tzx.write(bitstream)
 	}
+
+	// block ID 20 - Stop the tape
+	if cfg.Main.Verbose {
+		fmt.Printf("  [%03d] ID 0x20 Stop tape\n", tzx.Written)
+	}
+	tzx.write([]byte{0x20, 0, 0})
+
 	if cfg.Main.Verbose {
 		fmt.Printf("  [INF] %s written\n", humanize.Bytes(uint64(tzx.Written)))
 	}
