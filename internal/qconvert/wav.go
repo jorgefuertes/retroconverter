@@ -51,12 +51,15 @@ func (w *Wav) Load(inFileName string) error {
 	}
 
 	switch w.Format.SampleRate {
+	case 11025:
+		w.TStates = TS_11025
 	case 22050:
 		w.TStates = TS_22050
 	case 44100:
 		w.TStates = TS_44100
 	default:
-		return fmt.Errorf("invalid sampling freq: %d (use 22050 or 44100)", w.Format.SampleRate)
+		return fmt.Errorf("invalid sampling freq: %d (use 11025, 22050 or 44100)",
+			w.Format.SampleRate)
 	}
 	if cfg.Main.Verbose {
 		fmt.Printf("  [INF] T-states/sample: %d\n", w.TStates)
