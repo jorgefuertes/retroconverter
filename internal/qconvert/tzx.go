@@ -71,8 +71,19 @@ func (w *Wav) SaveTzx(filename string) error {
 		textBlock = append(textBlock, byte(s))
 	}
 	textLen := []byte{0, 0}
-	binary.LittleEndian.PutUint16(textLen, uint16(len(textBlock)-2))
+	binary.LittleEndian.PutUint16(textLen, uint16(len(textBlock)-3))
+	textBlock[1] = textLen[0]
+	textBlock[2] = textLen[1]
 	tzx.write(textBlock)
+	fmt.Printf("  TEXTBLOCK %d:\n", uint16(len(textBlock)-3))
+	for _, v := range textBlock {
+		if v >= 32 {
+			fmt.Printf("    0x%02x %03d [%s]\n", v, v, string(v))
+			continue
+		}
+		fmt.Printf("    0x%02x %03d [.]\n", v, v)
+	}
+	fmt.Println()
 
 	// blocks (all ID 15)
 	for _, block := range w.Blocks {
@@ -122,7 +133,7 @@ func (w *Wav) SaveTzx(filename string) error {
 		pause := []byte{0, 0}
 		binary.LittleEndian.PutUint16(pause, uint16(block.Pause))
 		if cfg.Main.Verbose {
-			fmt.Printf("  [%03d] Block pause: %d LSB: %d MSB: %d\n",
+			fmt.Printf("  [%03d] Pause after: %d LSB: %d MSB: %d\n",
 				tzx.Written, block.Pause, pause[0], pause[1])
 		}
 		tzx.write(pause)
