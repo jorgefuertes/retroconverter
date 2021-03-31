@@ -63,6 +63,7 @@ func (w *Wav) Load(inFileName string) error {
 	}
 	if cfg.Main.Verbose {
 		fmt.Printf("  [INF] T-states/sample: %d\n", w.TStates)
+		fmt.Printf("  [INF] Sample count: %s\n", humanize.Comma(int64(len(w.Data))))
 	}
 
 	return nil

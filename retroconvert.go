@@ -51,9 +51,18 @@ func main() {
 	check(err)
 
 	w.ToPulses()
+
+	if cfg.Main.ReSample > 0 {
+		if cfg.Main.Verbose {
+			fmt.Printf("> Downsampling from %d to %d\n", w.Format.SampleRate, cfg.Main.ReSample)
+		}
+		w.DownSample(cfg.Main.ReSample)
+	}
+
 	if cfg.Main.Verbose {
 		w.BlockStats()
 	}
+
 	w.SaveTzx(cfg.Main.OutFile)
 	if cfg.Main.Verbose {
 		fmt.Println("> EOF")
