@@ -75,15 +75,6 @@ func (w *Wav) SaveTzx(filename string) error {
 	textBlock[1] = textLen[0]
 	textBlock[2] = textLen[1]
 	tzx.write(textBlock)
-	fmt.Printf("  TEXTBLOCK %d:\n", uint16(len(textBlock)-3))
-	for _, v := range textBlock {
-		if v >= 32 {
-			fmt.Printf("    0x%02x %03d [%s]\n", v, v, string(v))
-			continue
-		}
-		fmt.Printf("    0x%02x %03d [.]\n", v, v)
-	}
-	fmt.Println()
 
 	// blocks (all ID 15)
 	for _, block := range w.Blocks {
