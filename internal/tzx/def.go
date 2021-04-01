@@ -6,7 +6,7 @@ import (
 )
 
 const TRESHOLD int = 127
-const UINT24_MAX uint = 16777216
+const UINT24_MAX uint = 16_777_216
 const TS_11025 uint16 = 316
 const TS_22050 uint16 = 158
 const TS_44100 uint16 = 79
