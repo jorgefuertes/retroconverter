@@ -47,6 +47,7 @@ func main() {
 	}
 
 	t := new(tzx.TZX)
+	t.OutFilename = cfg.Main.OutFile
 	err := t.Load(cfg.Main.InFile)
 	check(err)
 
@@ -63,7 +64,9 @@ func main() {
 		t.BlockStats()
 	}
 
-	t.SaveTzx()
+	err = t.SaveTzx()
+	check(err)
+
 	if cfg.Main.Verbose {
 		fmt.Println("> EOF")
 	}
