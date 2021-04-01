@@ -34,7 +34,6 @@ TIME=$(date +"%d-%m-%Y@%H:%M:%S")
 # amd64, arm, arm64...
 BUILD_LIST=(
 	"darwin/amd64"
-	"darwin/arm64"
 	"linux/amd64"
 	"linux/arm"
 	"linux/arm64"
