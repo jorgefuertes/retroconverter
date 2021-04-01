@@ -31,7 +31,7 @@ echo "Version: ${VER}"
 WHO=$(whoami)
 TIME=$(date +"%d-%m-%Y@%H:%M:%S")
 # darwin, linux
-OS_LIST=(darwin linux)
+OS_LIST=(darwin linux win)
 # amd64, arm, arm64...
 ARCH_LIST=(amd64 arm arm64)
 
