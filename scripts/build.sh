@@ -19,7 +19,7 @@ do
 	OS=${THIS[0]}
 	ARCH=${THIS[1]}
     GOOS=$OS GOARCH=$ARCH go build -ldflags "${FLAGS}" \
-		-o "bin/${EXE_NAME}_${VER}-${i}_${j}" \
+		-o "bin/${EXE_NAME}_${VER}-${OS}_${ARCH}" \
 		retroconvert.go
     if [[ $? -ne 0 ]]
     then
