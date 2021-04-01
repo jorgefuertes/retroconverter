@@ -1,4 +1,4 @@
-package qconvert
+package tzx
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 )
 
 // Load input wav file
-func (w *Wav) Load(inFileName string) error {
+func (t *TZX) Load(inFileName string) error {
 	if cfg.Main.Verbose {
 		fmt.Println("> WAV Reading:")
 	}
@@ -32,38 +32,38 @@ func (w *Wav) Load(inFileName string) error {
 	if err != nil {
 		return err
 	}
-	w.Data = buf.AsIntBuffer().Data
+	t.Data = buf.AsIntBuffer().Data
 	if cfg.Main.Verbose {
-		fmt.Printf("  [INF] %s read\n", humanize.Bytes(uint64(len(w.Data))))
+		fmt.Printf("  [INF] %s read\n", humanize.Bytes(uint64(len(t.Data))))
 	}
 
-	w.Format.Duration, _ = d.Duration()
-	w.Format.NumChans = d.NumChans
-	w.Format.SampleRate = d.SampleRate
-	w.Format.BitDepth = d.BitDepth
+	t.Format.Duration, _ = d.Duration()
+	t.Format.NumChans = d.NumChans
+	t.Format.SampleRate = d.SampleRate
+	t.Format.BitDepth = d.BitDepth
 	if cfg.Main.Verbose {
 		fmt.Printf("  [INF] Channels: %d Rate: %d Bits: %d Duration: %s\n",
-			w.Format.NumChans,
-			w.Format.SampleRate,
-			w.Format.BitDepth,
-			w.Format.Duration,
+			t.Format.NumChans,
+			t.Format.SampleRate,
+			t.Format.BitDepth,
+			t.Format.Duration,
 		)
 	}
 
-	switch w.Format.SampleRate {
+	switch t.Format.SampleRate {
 	case 11025:
-		w.TStates = TS_11025
+		t.TStates = TS_11025
 	case 22050:
-		w.TStates = TS_22050
+		t.TStates = TS_22050
 	case 44100:
-		w.TStates = TS_44100
+		t.TStates = TS_44100
 	default:
 		return fmt.Errorf("invalid sampling freq: %d (use 11025, 22050 or 44100)",
-			w.Format.SampleRate)
+			t.Format.SampleRate)
 	}
 	if cfg.Main.Verbose {
-		fmt.Printf("  [INF] T-states/sample: %d\n", w.TStates)
-		fmt.Printf("  [INF] Sample count: %s\n", humanize.Comma(int64(len(w.Data))))
+		fmt.Printf("  [INF] T-states/sample: %d\n", t.TStates)
+		fmt.Printf("  [INF] Sample count: %s\n", humanize.Comma(int64(len(t.Data))))
 	}
 
 	return nil

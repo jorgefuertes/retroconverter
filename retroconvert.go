@@ -8,7 +8,7 @@ import (
 	"git.martianoids.com/queru/retroconverter/internal/banner"
 	"git.martianoids.com/queru/retroconverter/internal/build"
 	"git.martianoids.com/queru/retroconverter/internal/cfg"
-	"git.martianoids.com/queru/retroconverter/internal/qconvert"
+	"git.martianoids.com/queru/retroconverter/internal/tzx"
 	"github.com/alecthomas/kong"
 )
 
@@ -46,24 +46,24 @@ func main() {
 		fmt.Println(banner.Title)
 	}
 
-	w := new(qconvert.Wav)
-	err := w.Load(cfg.Main.InFile)
+	t := new(tzx.TZX)
+	err := t.Load(cfg.Main.InFile)
 	check(err)
 
-	w.ToPulses()
+	t.ToPulses()
 
 	if cfg.Main.ReSample > 0 {
 		if cfg.Main.Verbose {
-			fmt.Printf("> Downsampling from %d to %d\n", w.Format.SampleRate, cfg.Main.ReSample)
+			fmt.Printf("> Downsampling from %d to %d\n", t.Format.SampleRate, cfg.Main.ReSample)
 		}
-		w.DownSample(cfg.Main.ReSample)
+		t.DownSample(cfg.Main.ReSample)
 	}
 
 	if cfg.Main.Verbose {
-		w.BlockStats()
+		t.BlockStats()
 	}
 
-	w.SaveTzx(cfg.Main.OutFile)
+	t.SaveTzx()
 	if cfg.Main.Verbose {
 		fmt.Println("> EOF")
 	}

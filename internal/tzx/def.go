@@ -1,12 +1,11 @@
-package qconvert
+package tzx
 
 import (
+	"os"
 	"time"
 )
 
 const TRESHOLD int = 127
-const NEGATIVE int8 = 0
-const POSITIVE int8 = 1
 const UINT24_MAX uint = 16777216
 const TS_11025 uint16 = 316
 const TS_22050 uint16 = 158
@@ -23,9 +22,13 @@ type SampleBlock struct {
 	SampleCount uint
 }
 
-// Wav file data
-type Wav struct {
-	Format struct {
+// Tzx data
+type TZX struct {
+	InFilename  string
+	OutFilename string
+	OutFile     *os.File
+	Written     int
+	Format      struct {
 		NumChans   uint16
 		SampleRate uint32
 		BitDepth   uint16
