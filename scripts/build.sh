@@ -11,6 +11,25 @@ source scripts/build_common.inc.sh
 mkdir -p bin
 rm -f bin/$EXE_NAME*
 
+IFS='/'
+for b in "${BUILD_LIST[@]}"
+do
+    echo "Building ${b}"
+	read -ra THIS <<< "$b"
+	OS=${THIS[0]}
+	ARCH=${THIS[1]}
+    GOOS=$OS GOARCH=$ARCH go build -ldflags "${FLAGS}" \
+		-o "bin/${EXE_NAME}_${VER}-${i}_${j}" \
+		retroconvert.go
+    if [[ $? -ne 0 ]]
+    then
+        echo "Compilation error!"
+        exit 1
+    fi
+done
+IFS=' '
+exit 0
+
 for i in "${OS_LIST[@]}"
 do
     for j in "${ARCH_LIST[@]}"
@@ -20,14 +39,6 @@ do
 			echo "Refusing to build ${i}/${j}"
 		else
 	        echo "Building ${i} ${j}"
-	        GOOS=$i GOARCH=$j go build -ldflags "${FLAGS}" \
-				-o "bin/${EXE_NAME}_${VER}-${i}_${j}" \
-				retroconvert.go
-	        if [[ $? -ne 0 ]]
-	        then
-	            echo "Compilation error!"
-	            exit 1
-	        fi
 		fi
     done
 done

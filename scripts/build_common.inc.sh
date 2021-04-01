@@ -11,7 +11,7 @@ git status | egrep "working tree clean|el árbol de trabajo está limpio" &> /de
 if [[ $? -ne 0 ]]
 then
 	echo "Commit local changes and create a new tag first"
-	exit 1
+	#exit 1
 fi
 
 git describe --tags --contains &> /dev/null
@@ -30,10 +30,17 @@ echo "Version: ${VER}"
 
 WHO=$(whoami)
 TIME=$(date +"%d-%m-%Y@%H:%M:%S")
-# darwin, linux
-OS_LIST=(darwin linux windows)
+# darwin, linux, windows
 # amd64, arm, arm64...
-ARCH_LIST=(amd64 arm arm64)
+BUILD_LIST=(
+	"darwin/amd64"
+	"darwin/arm64"
+	"linux/amd64"
+	"linux/arm"
+	"linux/arm64"
+	"windows/amd64"
+	"windows/arm"
+)
 
 if [[ -f .build ]]
 then
