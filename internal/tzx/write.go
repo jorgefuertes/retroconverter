@@ -151,12 +151,6 @@ func (t *TZX) SaveTzx() error {
 		t.write(bitstream)
 	}
 
-	// block ID 20 - Stop the tape
-	if cfg.Main.Verbose {
-		fmt.Printf("  [%03d] ID 0x20 Stop tape\n", t.Written)
-	}
-	t.write([]byte{0x20, 0, 0})
-
 	t.close()
 
 	if cfg.Main.Verbose {
