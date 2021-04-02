@@ -47,7 +47,7 @@ func Run(messages chan string, wg *sync.WaitGroup, initMsg string) {
 			if count >= len(bar) {
 				count = 0
 			}
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(30 * time.Millisecond)
 		}
 	}
 }
